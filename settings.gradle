@@ -1,0 +1,2 @@
+rootProject.name='coroutinEx'
+include ':app'

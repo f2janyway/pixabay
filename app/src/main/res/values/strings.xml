@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">coroutinEx</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="pixa_key">15911140-f4b6d0a210408141759a9831b</string>
+</resources>
