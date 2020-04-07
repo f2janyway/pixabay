@@ -1,7 +1,11 @@
 <resources>
-    <string name="app_name">coroutinEx</string>
+    <string name="app_name">Pixabay - Image</string>
 
-    <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="pixa_key">15911140-f4b6d0a210408141759a9831b</string>
+    <string name="download">다운로드</string>
+    <string name="share">공유</string>
+    <string name="permission">권한 설정 안되어 있습니다.</string>
+    <string name="no_wifi">인터넷 연결을 해주세요.</string>
+    <string name="no_search_info">검색자료가 없습니다.</string>
 </resources>

@@ -1,4 +1,4 @@
-package com.box.coroutinex
+package com.box.coroutinex.data
 
 data class Hits (
     var id: Float = 0f,

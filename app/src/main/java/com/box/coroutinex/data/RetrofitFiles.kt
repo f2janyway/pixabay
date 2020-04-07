@@ -1,12 +1,11 @@
-package com.box.coroutinex
+package com.box.coroutinex.data
 
 import retrofit2.Call
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
-import com.box.coroutinex.Photo
 import retrofit2.http.*
 
-data class Repo(val name:String,val full_namr:String,val owner:Owner)
+data class Repo(val name:String,val full_namr:String,val owner: Owner)
 interface APIService {
     @GET("users/{user}/repos")
     fun listRepos(@Path("user") user: String): Call<List<Repo>>
