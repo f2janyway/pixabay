@@ -70,10 +70,16 @@ class PhotoAdapter(var list: ArrayList<Hits>) : RecyclerView.Adapter<PhotoAdapte
         }
     }
     override fun onBindViewHolder(holder: PhotoAdapter.ViewHolder, position: Int) {
+
         holder.itemView.apply {
-            Glide.with(context).load(list[position].largeImageURL)
-                .apply(requestOptions)
+            Glide.with(context).load(list[position].webformatURL)
+//                .apply(requestOptions)
+                .placeholder(android.R.color.white)
                 .listener(requestListener)
+                .diskCacheStrategy(DiskCacheStrategy.ALL)
+                .override(list[position].webformatWidth.toInt() / 2,list[position].webformatWidth.toInt())
+                .fitCenter()
+                .dontAnimate()
                 .into(iamge_item)
 
             if (itemClick != null) {
@@ -91,7 +97,6 @@ class PhotoAdapter(var list: ArrayList<Hits>) : RecyclerView.Adapter<PhotoAdapte
 
     fun addHitsList(hits: ArrayList<Hits>) {
         list.addAll(hits)
-
         Log.e("list size", list.size.toString())
         notifyDataSetChanged()
     }

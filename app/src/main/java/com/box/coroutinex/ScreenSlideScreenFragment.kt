@@ -76,7 +76,83 @@ class ScreenSlideScreenFragment : Fragment() {
 
     }
 
-    fun getImageUriFromBitmap(context: Context, bitmap: Bitmap): Uri? {
+
+    override fun onActivityCreated(savedInstanceState: Bundle?) {
+        super.onActivityCreated(savedInstanceState)
+        activity!!.apply {
+            download_button.setOnClickListener {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                    if (checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
+                        saveImage()
+                    } else {
+                        Log.e("권한", "permission denied")
+                        ActivityCompat.requestPermissions(
+                            activity!!,
+                            arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE),
+                            WRITE_PERMISSION
+                        )
+                    }
+                } else {
+                    saveImage()
+                }
+            }
+            share_button.setOnClickListener {
+                shareBitmap()
+            }
+        }
+
+    }
+    private fun shareBitmap(){
+        val mBitmap = (photoView.drawable as BitmapDrawable).bitmap
+
+        val stream = ByteArrayOutputStream()
+        mBitmap.compress(Bitmap.CompressFormat.JPEG, 10, stream)
+        val shareIntent = Intent()
+        val compressedBitmap = BitmapFactory.decodeByteArray(
+            stream.toByteArray(),
+            0,
+            stream.toByteArray().size
+        )
+        shareIntent.apply {
+            action = Intent.ACTION_SEND
+            putExtra(
+                Intent.EXTRA_STREAM,
+                getImageUriFromBitmap(activity!!,mBitmap)
+                /*Bitmap.createScaledBitmap(compressedBitmap, compressedBitmap.width /6, compressedBitmap.height/6, false) 쓸데 없구만 uri 로 보내야지*/
+            )
+            type = "image/*"
+        }
+        startActivity(Intent.createChooser(shareIntent, getString(R.string.share)))
+    }
+
+    fun saveImage() {
+        val mBitmap = (photoView.drawable as BitmapDrawable).bitmap
+
+        val uri = getImageUriFromBitmap(activity!!, mBitmap!!)
+        val path = /*ContextWrapper(context).getDir("images", Context.MODE_PRIVATE)*/
+            getRealPathFromUri(uri!!)
+//                val filepath = path + File.separator.toString() + "${UUID.randomUUID()}.jpg"
+        val file = File(path!!)
+        Log.e("file", file.absolutePath)
+        try {
+            if (!file.exists()) {
+                file.createNewFile()
+                Log.e("file not exists", file.absolutePath)
+            }
+            val fos = FileOutputStream(file)
+            GlobalScope.launch(Dispatchers.IO) {
+                mBitmap.compress(Bitmap.CompressFormat.JPEG, 100, fos)
+                fos.close()
+                this.launch(Dispatchers.Main) {
+                    Toast.makeText(activity!!, "다운로드 됨", Toast.LENGTH_SHORT).show()
+                }
+            }
+        } catch (e: IOException) {
+            e.printStackTrace()
+        }
+    }
+
+    private fun getImageUriFromBitmap(context: Context, bitmap: Bitmap): Uri? {
         val bytes = ByteArrayOutputStream()
         bitmap.compress(Bitmap.CompressFormat.JPEG, 100, bytes)
         var path: String? = null
@@ -90,7 +166,7 @@ class ScreenSlideScreenFragment : Fragment() {
         return Uri.parse(path) ?: null
     }
 
-    fun getRealPathFromUri(contentURI: Uri): String? {
+    private fun getRealPathFromUri(contentURI: Uri): String? {
         val file: String?
         if ("content" == contentURI.scheme) {
             val cursor: Cursor? = activity!!.contentResolver.query(
@@ -109,65 +185,4 @@ class ScreenSlideScreenFragment : Fragment() {
         Log.e("Chosen path ", "Chosen path = $file");
         return file
     }
-
-    fun saveImage(){
-        val mBitmap = (photoView.drawable as BitmapDrawable).bitmap
-
-        val uri = getImageUriFromBitmap(activity!!, mBitmap!!)
-        val path = /*ContextWrapper(context).getDir("images", Context.MODE_PRIVATE)*/
-            getRealPathFromUri(uri!!)
-//                val filepath = path + File.separator.toString() + "${UUID.randomUUID()}.jpg"
-        val file = File(path!!)
-        Log.e("file", file.absolutePath)
-        try {
-            if (!file.exists()) {
-                file.createNewFile()
-                Log.e("file not exists", file.absolutePath)
-            }
-            val fos = FileOutputStream(file)
-            GlobalScope.launch(Dispatchers.IO) {
-                mBitmap!!.compress(Bitmap.CompressFormat.JPEG, 100, fos)
-                fos.close()
-                this.launch(Dispatchers.Main) {
-                    Toast.makeText(activity!!, "다운로드 됨", Toast.LENGTH_SHORT).show()
-                }
-            }
-        } catch (e: IOException) {
-            e.printStackTrace()
-        }
-    }
-    override fun onActivityCreated(savedInstanceState: Bundle?) {
-        super.onActivityCreated(savedInstanceState)
-        activity!!.apply {
-            download_button.setOnClickListener {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                    if(checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED){
-                        saveImage()
-                    }else{
-                        Log.e("권한","permission denied")
-                        ActivityCompat.requestPermissions(activity!!, arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE),WRITE_PERMISSION)
-                    }
-                } else {
-                    saveImage()
-                }
-            }
-            share_button.setOnClickListener {
-              val  mBitmap = (photoView.drawable as BitmapDrawable).bitmap
-
-                val stream =  ByteArrayOutputStream()
-                mBitmap.compress(Bitmap.CompressFormat.PNG,10 ,stream)
-
-                val shareIntent = Intent()
-                val compressedBitmap = BitmapFactory.decodeByteArray(stream.toByteArray(),0,stream.toByteArray().size)
-                shareIntent.apply {
-                    action = Intent.ACTION_SEND
-                    putExtra(Intent.EXTRA_STREAM,Bitmap.createScaledBitmap(compressedBitmap,1,1,false))
-                    type = "image/*"
-                }
-                startActivity(Intent.createChooser(shareIntent,getString(R.string.share)))
-            }
-        }
-
-    }
-
 }

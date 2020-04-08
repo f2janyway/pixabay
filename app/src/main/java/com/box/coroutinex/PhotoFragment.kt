@@ -110,7 +110,7 @@ class PhotoFragment : Fragment() {
         GlobalScope.launch(Dispatchers.IO) {
             val service = APIService.pixabayRetrofit.create(APIService::class.java)
             //param1  : key ,, param2 : query
-            val photoResult: Call<Photo> = service.searchImages(param1!!, q!!, pageNum)
+            val photoResult: Call<Photo> = service.searchImages(param1!!, q!!, pageNum,true)
             photoResult.enqueue(object : Callback<Photo> {
                 override fun onFailure(call: Call<Photo>, t: Throwable) {
                     Toast.makeText(activity, getString(R.string.no_wifi), Toast.LENGTH_SHORT).show()

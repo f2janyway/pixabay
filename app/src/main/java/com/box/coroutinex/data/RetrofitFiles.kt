@@ -10,7 +10,7 @@ interface APIService {
     @GET("users/{user}/repos")
     fun listRepos(@Path("user") user: String): Call<List<Repo>>
     @GET("api/")
-    fun searchImages(@Query("key") key:String, @Query("q") query: String, @Query("page") page : Int) : Call<Photo>
+    fun searchImages(@Query("key") key:String, @Query("q") query: String, @Query("page") page : Int,@Query("safesearch") safesearch:Boolean) : Call<Photo>
 
     companion object {
         //        https://api.github.com/repos/yegyu/DotNet
