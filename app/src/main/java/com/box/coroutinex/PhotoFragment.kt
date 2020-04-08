@@ -11,6 +11,7 @@ import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.fragment.app.FragmentActivity
 import androidx.recyclerview.widget.RecyclerView
+import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import com.box.coroutinex.data.APIService
 import com.box.coroutinex.data.Hits
@@ -32,6 +33,7 @@ class PhotoFragment : Fragment() {
     private var param1: String? = null
 
     //    private var param2: String? = null
+    @Volatile
     lateinit var photoAdapter: PhotoAdapter
 
     var q: String? = null
@@ -83,23 +85,26 @@ class PhotoFragment : Fragment() {
                 }
             }
         }
-        photo_recycler.adapter = photoAdapter
-        photo_recycler.setHasFixedSize(true)
-
-        doSearch("car")
-        photo_recycler.addOnScrollListener(object : RecyclerView.OnScrollListener() {
-            override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
-                super.onScrollStateChanged(recyclerView, newState)
-                if (!recyclerView.canScrollVertically(1) && newState == RecyclerView.SCROLL_STATE_IDLE) {
-                    if (pageNum != 0) {
-                        pageNum++
+        photo_recycler.apply {
+            adapter = photoAdapter
+            layoutManager = WrapStaggeredGridLayoutManager(2,RecyclerView.VERTICAL)
+            setHasFixedSize(true)
+            addOnScrollListener(object : RecyclerView.OnScrollListener() {
+                override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
+                    super.onScrollStateChanged(recyclerView, newState)
+                    if (!recyclerView.canScrollVertically(1) && newState == RecyclerView.SCROLL_STATE_IDLE) {
+                        if (pageNum != 0) {
+                            pageNum++
 //                        Log.e("pageNUm", pageNum.toString())
-                        doSearch(q!!)
-                        progressBar.visibility = View.VISIBLE
+                            doSearch(q!!)
+                            progressBar.visibility = View.VISIBLE
+                        }
                     }
                 }
-            }
-        })
+            })
+        }
+        doSearch("car")
+
     }
 
     fun doSearch(query: String) {
@@ -110,7 +115,7 @@ class PhotoFragment : Fragment() {
         GlobalScope.launch(Dispatchers.IO) {
             val service = APIService.pixabayRetrofit.create(APIService::class.java)
             //param1  : key ,, param2 : query
-            val photoResult: Call<Photo> = service.searchImages(param1!!, q!!, pageNum,true)
+            val photoResult: Call<Photo> = service.searchImages(param1!!, q!!, pageNum, true)
             photoResult.enqueue(object : Callback<Photo> {
                 override fun onFailure(call: Call<Photo>, t: Throwable) {
                     Toast.makeText(activity, getString(R.string.no_wifi), Toast.LENGTH_SHORT).show()
