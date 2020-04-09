@@ -1,6 +1,5 @@
 package com.box.coroutinex
 
-import android.graphics.Matrix
 import android.graphics.drawable.Drawable
 import android.util.Log
 import android.view.LayoutInflater
@@ -40,41 +39,36 @@ class PhotoAdapter(var list: ArrayList<Hits>) : RecyclerView.Adapter<PhotoAdapte
 
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PhotoAdapter.ViewHolder {
-        return ViewHolder(
-            LayoutInflater.from(parent.context).inflate(R.layout.photo_item, parent, false)
-        )
+        return ViewHolder(LayoutInflater.from(parent.context)
+                                  .inflate(R.layout.photo_item, parent, false))
     }
 
     override fun getItemCount(): Int = list.size
 
 
-    private val requestOptions =
-        RequestOptions().diskCacheStrategy(DiskCacheStrategy.ALL).placeholder(android.R.color.white)
+    private val requestOptions = RequestOptions().diskCacheStrategy(DiskCacheStrategy.ALL)
+            .placeholder(android.R.color.white)
 
 
     private val requestListener = object : RequestListener<Drawable> {
-        override fun onLoadFailed(
-            e: GlideException?,
-            model: Any?,
-            target: Target<Drawable>?,
-            isFirstResource: Boolean
-        ): Boolean {
+        override fun onLoadFailed(e: GlideException?,
+                model: Any?,
+                target: Target<Drawable>?,
+                isFirstResource: Boolean): Boolean {
             return false
         }
 
-        override fun onResourceReady(
-            resource: Drawable?,
-            model: Any?,
-            target: Target<Drawable>?,
-            dataSource: DataSource?,
-            isFirstResource: Boolean
-        ): Boolean {
+        override fun onResourceReady(resource: Drawable?,
+                model: Any?,
+                target: Target<Drawable>?,
+                dataSource: DataSource?,
+                isFirstResource: Boolean): Boolean {
             loadingCheck?.isLoadingEnd(true)
             return false
         }
     }
 
-//        var mwidth = 0
+    //        var mwidth = 0
     override fun onBindViewHolder(holder: PhotoAdapter.ViewHolder, position: Int) {
 
         val width = list[position].webformatWidth.toInt()
@@ -83,18 +77,16 @@ class PhotoAdapter(var list: ArrayList<Hits>) : RecyclerView.Adapter<PhotoAdapte
             image_item.apply {
                 layoutParams = image_item.layoutParams
                 layoutParams.width = ViewGroup.LayoutParams.MATCH_PARENT
-//                mwidth = image_item.width
+                //                mwidth = image_item.width
                 layoutParams.height = height
                 adjustViewBounds = true
 
                 //이미지 뷰에 글리아드 맞춤
-                scaleType =   ImageView.ScaleType.CENTER_CROP
+                scaleType = ImageView.ScaleType.CENTER_CROP
 
             }
-            Glide.with(context).load(list[position].webformatURL)
-                .apply(requestOptions)
-                .listener(requestListener)
-                .into(image_item)
+            Glide.with(context).load(list[position].webformatURL).apply(requestOptions)
+                    .listener(requestListener).into(image_item)
 
             if (itemClick != null) {
                 image_item.setOnClickListener {

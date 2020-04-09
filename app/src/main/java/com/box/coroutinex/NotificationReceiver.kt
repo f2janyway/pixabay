@@ -8,7 +8,7 @@ import com.box.coroutinex.MainActivity.Companion.job
 class NotificationReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context?, intent: Intent?) {
         if (intent?.action == "cancel") {
-            job.cancel(null)
+            job!!.cancel(null)
         }
 
     }

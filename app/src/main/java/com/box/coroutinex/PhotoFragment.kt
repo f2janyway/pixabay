@@ -42,15 +42,14 @@ class PhotoFragment : Fragment() {
         super.onCreate(savedInstanceState)
         arguments?.let {
             param1 = it.getString(ARG_PARAM1)
-//            param2 = it.getString(ARG_PARAM2)
+            //param2 = it.getString(ARG_PARAM2)
         }
     }
 
 
-    override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
+    override fun onCreateView(inflater: LayoutInflater,
+            container: ViewGroup?,
+            savedInstanceState: Bundle?): View? {
         // Inflate the layout for this fragment
         pageNum = 1
         return inflater.inflate(R.layout.fragment_photo, container, false)
@@ -95,7 +94,7 @@ class PhotoFragment : Fragment() {
                     if (!recyclerView.canScrollVertically(1) && newState == RecyclerView.SCROLL_STATE_IDLE) {
                         if (pageNum != 0) {
                             pageNum++
-//                        Log.e("pageNUm", pageNum.toString())
+                            //                        Log.e("pageNUm", pageNum.toString())
                             doSearch(q!!)
                             progressBar.visibility = View.VISIBLE
                         }
@@ -126,21 +125,16 @@ class PhotoFragment : Fragment() {
                 Log.e("url", response.toString())
 
                 if (response.body() == null || response.body()!!.hits.isEmpty()) {
-                    Toast.makeText(
-                        activity,
-                        getString(R.string.no_search_info),
-                        Toast.LENGTH_SHORT
-                    ).show()
+                    Toast.makeText(activity, getString(R.string.no_search_info), Toast.LENGTH_SHORT)
+                            .show()
                     activity!!.progressBar.visibility = View.GONE
                     return
                 }
                 val hits = response.body()!!.hits as ArrayList
-//                    Log.e("hits", Gson().fromJson(hits.toString(), Hits::class.java).toString())
+                //                    Log.e("hits", Gson().fromJson(hits.toString(), Hits::class.java).toString())
                 job = GlobalScope.launch(Dispatchers.Main) {
-                    if (pageNum == 1)
-                        photoAdapter.setHitsList(hits)
-                    else
-                        photoAdapter.addHitsList(hits)
+                    if (pageNum == 1) photoAdapter.setHitsList(hits)
+                    else photoAdapter.addHitsList(hits)
                 }
             }
         })
@@ -163,11 +157,10 @@ class PhotoFragment : Fragment() {
          * @return A new instance of fragment PhotoFragment.
          */
         @JvmStatic
-        fun newInstance(param1: String, param2: String) =
-            PhotoFragment().apply {
-                arguments = Bundle().apply {
-                    putString(ARG_PARAM1, param1)
-                }
+        fun newInstance(param1: String, param2: String) = PhotoFragment().apply {
+            arguments = Bundle().apply {
+                putString(ARG_PARAM1, param1)
             }
+        }
     }
 }

@@ -115,7 +115,7 @@ class MainActivity : AppCompatActivity() {
     val time = MutableLiveData<Long>()
 
     companion object {
-        lateinit var job: Job
+        var job: Job? = null
     }
 
     fun applyNotification() {
@@ -130,17 +130,18 @@ class MainActivity : AppCompatActivity() {
             setAutoCancel(true)
             setDeleteIntent(getDeleteIntent())
             priority = NotificationCompat.PRIORITY_DEFAULT
+            val startTime =  realTimeToString()
             job = GlobalScope.launch(Dispatchers.Main) {
                 while (true) {
                     delay(1000)
                     builder.setContentText(
-                        realTimeToString()
+                         startTime +" " +realTimeToString()
                     )
                     Log.e("while",realTimeToString())
                     notificationManagerCompat.notify(1, builder.build())
                 }
             }
-            job.start()
+            job!!.start()
         }
     }
 
@@ -151,7 +152,12 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun realTimeToString(): String {
-        return (Calendar.getInstance().time).toString()
+        val time = System.currentTimeMillis();
+
+		val dayTime =  SimpleDateFormat("hh:mm:ss",Locale.KOREA)
+
+
+        return dayTime.format(Date(time))
     }
 
     fun applyCustomNotification() {

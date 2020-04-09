@@ -40,20 +40,17 @@ class ExampleInstrumentedTest {
     @Test
     fun mainActivity_RecyclerViewTest_Scrolling_After_search() {
 
-            listOf("car", "korea", "water", "cloud", "melone", "cool").forEach {
-                onView(withId(R.id.action_search)).perform(click(), typeSearchViewText(it), pressKey(KeyEvent.KEYCODE_ENTER))
+        listOf("car", "korea", "water", "cloud", "melone", "cool").forEach {
+            onView(withId(R.id.action_search)).perform(click(),
+                                                       typeSearchViewText(it),
+                                                       pressKey(KeyEvent.KEYCODE_ENTER))
 
-                for (i in 0..10)
-                    onView(withId(R.id.main_constraintLayout)).perform(swipeDown()).perform(swipeUp())
+            for (i in 0..10) onView(withId(R.id.main_constraintLayout)).perform(swipeDown())
+                    .perform(swipeUp())
 
-                onView(withId(R.id.photo_recycler)).perform(
-                    RecyclerViewActions.scrollToPosition<PhotoAdapter.ViewHolder>(
-                        0
-                    )
-                )
-            }
-
-
+            onView(withId(R.id.photo_recycler)).perform(RecyclerViewActions.scrollToPosition<PhotoAdapter.ViewHolder>(
+                0))
+        }
     }
 
     class RecyclerViewItemCountAssertion(private val expectedCount: Int) : ViewAssertion {

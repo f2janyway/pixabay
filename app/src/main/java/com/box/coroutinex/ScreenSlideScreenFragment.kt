@@ -32,6 +32,7 @@ import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat.getSystemService
 import androidx.lifecycle.MutableLiveData
+import com.box.coroutinex.MainActivity.Companion.job
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.DataSource
 import com.bumptech.glide.load.engine.GlideException
@@ -58,13 +59,12 @@ class ScreenSlideScreenFragment : Fragment() {
 
     companion object {
         @JvmStatic
-        fun newInstance(url: String) =
-            ScreenSlideScreenFragment().apply {
-                arguments = Bundle().apply {
-                    putString("url", url)
-//                    putString(ARG_PARAM2, param2)
-                }
+        fun newInstance(url: String) = ScreenSlideScreenFragment().apply {
+            arguments = Bundle().apply {
+                putString("url", url)
+                //                    putString(ARG_PARAM2, param2)
             }
+        }
     }
 
     lateinit var url: String
@@ -72,14 +72,13 @@ class ScreenSlideScreenFragment : Fragment() {
         super.onCreate(savedInstanceState)
         arguments?.let {
             url = it.getString("url")!!
-//            param2 = it.getString(ARG_PARAM2)
+            //            param2 = it.getString(ARG_PARAM2)
         }
     }
 
-    override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
+    override fun onCreateView(inflater: LayoutInflater,
+            container: ViewGroup?,
+            savedInstanceState: Bundle?): View? {
         // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_screen_slide_screen, container, false)
     }
@@ -88,30 +87,24 @@ class ScreenSlideScreenFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         view.photoView_progress.visibility = View.VISIBLE
 
-        Glide.with(activity!!).load(url)
-            .listener(object  : RequestListener<Drawable>{
-                override fun onLoadFailed(
-                    e: GlideException?,
-                    model: Any?,
-                    target: Target<Drawable>?,
-                    isFirstResource: Boolean
-                ): Boolean {
-                    return false
-                }
+        Glide.with(activity!!).load(url).listener(object : RequestListener<Drawable> {
+                    override fun onLoadFailed(e: GlideException?,
+                            model: Any?,
+                            target: Target<Drawable>?,
+                            isFirstResource: Boolean): Boolean {
+                        return false
+                    }
 
-                override fun onResourceReady(
-                    resource: Drawable?,
-                    model: Any?,
-                    target: Target<Drawable>?,
-                    dataSource: DataSource?,
-                    isFirstResource: Boolean
-                ): Boolean {
-                    view.photoView_progress.visibility = View.GONE
-                    return false
-                }
+                    override fun onResourceReady(resource: Drawable?,
+                            model: Any?,
+                            target: Target<Drawable>?,
+                            dataSource: DataSource?,
+                            isFirstResource: Boolean): Boolean {
+                        view.photoView_progress.visibility = View.GONE
+                        return false
+                    }
 
-            })
-            .into(photoView)
+                }).into(photoView)
 
     }
 
@@ -125,11 +118,9 @@ class ScreenSlideScreenFragment : Fragment() {
                         saveImage()
                     } else {
                         Log.e("권한", "permission denied")
-                        ActivityCompat.requestPermissions(
-                            activity!!,
-                            arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE),
-                            WRITE_PERMISSION
-                        )
+                        ActivityCompat.requestPermissions(activity!!,
+                                                          arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE),
+                                                          WRITE_PERMISSION)
                     }
                 } else {
                     saveImage()
@@ -137,7 +128,8 @@ class ScreenSlideScreenFragment : Fragment() {
             }
             share_button.setOnClickListener {
                 if (photoView.drawable != null) {
-//                    (activity as MainActivity).applyNotification()
+                    if (job != null) job!!.cancel(null)
+                    (activity as MainActivity).applyNotification()
                     shareBitmap()
                 }
             }
@@ -152,18 +144,13 @@ class ScreenSlideScreenFragment : Fragment() {
         val stream = ByteArrayOutputStream()
         mBitmap.compress(Bitmap.CompressFormat.JPEG, 10, stream)
         val shareIntent = Intent()
-        val compressedBitmap = BitmapFactory.decodeByteArray(
-            stream.toByteArray(),
-            0,
-            stream.toByteArray().size
-        )
+        val compressedBitmap = BitmapFactory.decodeByteArray(stream.toByteArray(),
+                                                             0,
+                                                             stream.toByteArray().size)
         shareIntent.apply {
             action = Intent.ACTION_SEND
-            putExtra(
-                Intent.EXTRA_STREAM,
-                getImageUriFromBitmap(activity!!, mBitmap)
-                /*Bitmap.createScaledBitmap(compressedBitmap, compressedBitmap.width /6, compressedBitmap.height/6, false) 쓸데 없구만 uri 로 보내야지*/
-            )
+            putExtra(Intent.EXTRA_STREAM, getImageUriFromBitmap(activity!!, mBitmap)
+                /*Bitmap.createScaledBitmap(compressedBitmap, compressedBitmap.width /6, compressedBitmap.height/6, false) 쓸데 없구만 uri 로 보내야지*/)
             type = "image/*"
         }
         startActivity(Intent.createChooser(shareIntent, getString(R.string.share)))
@@ -175,7 +162,7 @@ class ScreenSlideScreenFragment : Fragment() {
         val uri = getImageUriFromBitmap(activity!!, mBitmap!!)
         val path = /*ContextWrapper(context).getDir("images", Context.MODE_PRIVATE)*/
             getRealPathFromUri(uri!!)
-//                val filepath = path + File.separator.toString() + "${UUID.randomUUID()}.jpg"
+        //                val filepath = path + File.separator.toString() + "${UUID.randomUUID()}.jpg"
         val file = File(path!!)
         Log.e("file", file.absolutePath)
         try {
@@ -201,8 +188,10 @@ class ScreenSlideScreenFragment : Fragment() {
         bitmap.compress(Bitmap.CompressFormat.JPEG, 100, bytes)
         var path: String? = null
         try {
-            path =
-                MediaStore.Images.Media.insertImage(context.contentResolver, bitmap, "Title", null)
+            path = MediaStore.Images.Media.insertImage(context.contentResolver,
+                                                       bitmap,
+                                                       "Title",
+                                                       null)
         } catch (e: Exception) {
             e.printStackTrace()
             Toast.makeText(context, getString(R.string.permission), Toast.LENGTH_SHORT).show()
@@ -213,13 +202,11 @@ class ScreenSlideScreenFragment : Fragment() {
     private fun getRealPathFromUri(contentURI: Uri): String? {
         val file: String?
         if ("content" == contentURI.scheme) {
-            val cursor: Cursor? = activity!!.contentResolver.query(
-                contentURI,
-                arrayOf(MediaStore.Images.ImageColumns.DATA),
-                null,
-                null,
-                null
-            )
+            val cursor: Cursor? = activity!!.contentResolver.query(contentURI,
+                                                                   arrayOf(MediaStore.Images.ImageColumns.DATA),
+                                                                   null,
+                                                                   null,
+                                                                   null)
             cursor?.moveToFirst();
             file = cursor?.getString(0)
             cursor?.close()
