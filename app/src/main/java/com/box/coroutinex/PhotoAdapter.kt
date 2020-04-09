@@ -1,5 +1,6 @@
 package com.box.coroutinex
 
+import android.graphics.Matrix
 import android.graphics.drawable.Drawable
 import android.util.Log
 import android.view.LayoutInflater
@@ -48,8 +49,8 @@ class PhotoAdapter(var list: ArrayList<Hits>) : RecyclerView.Adapter<PhotoAdapte
 
 
     private val requestOptions =
-        RequestOptions().diskCacheStrategy(DiskCacheStrategy.AUTOMATIC).override(300, 200)
-            .placeholder(R.drawable.ic_launcher_foreground).fitCenter()
+        RequestOptions().diskCacheStrategy(DiskCacheStrategy.ALL).placeholder(android.R.color.white)
+
 
     private val requestListener = object : RequestListener<Drawable> {
         override fun onLoadFailed(
@@ -81,18 +82,18 @@ class PhotoAdapter(var list: ArrayList<Hits>) : RecyclerView.Adapter<PhotoAdapte
         holder.itemView.apply {
             image_item.apply {
                 layoutParams = image_item.layoutParams
-//                layoutParams.width = ViewGroup.LayoutParams.MATCH_PARENT
+                layoutParams.width = ViewGroup.LayoutParams.MATCH_PARENT
 //                mwidth = image_item.width
                 layoutParams.height = height
                 adjustViewBounds = true
+
+                //이미지 뷰에 글리아드 맞춤
+                scaleType =   ImageView.ScaleType.CENTER_CROP
+
             }
             Glide.with(context).load(list[position].webformatURL)
-//                .apply(requestOptions)
-                .override(Target.SIZE_ORIGINAL,Target.SIZE_ORIGINAL )
-                .placeholder(android.R.color.white)
+                .apply(requestOptions)
                 .listener(requestListener)
-                .fitCenter()
-                .diskCacheStrategy(DiskCacheStrategy.ALL)
                 .into(image_item)
 
             if (itemClick != null) {
@@ -104,6 +105,7 @@ class PhotoAdapter(var list: ArrayList<Hits>) : RecyclerView.Adapter<PhotoAdapte
     }
 
     fun setHitsList(hitsList: ArrayList<Hits>) {
+        list.clear()
         list = hitsList
         notifyDataSetChanged()
     }

@@ -21,6 +21,8 @@ import kotlinx.android.synthetic.main.fragment_photo.*
 import kotlinx.android.synthetic.main.photo_item.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.internal.synchronized
 import kotlinx.coroutines.launch
 import retrofit2.Call
 import retrofit2.Callback
@@ -88,7 +90,7 @@ class PhotoFragment : Fragment() {
         }
         photo_recycler.apply {
             adapter = photoAdapter
-            layoutManager = WrapStaggeredGridLayoutManager(2,RecyclerView.VERTICAL)
+            layoutManager = WrapStaggeredGridLayoutManager(2, RecyclerView.VERTICAL)
             setHasFixedSize(true)
             addOnScrollListener(object : RecyclerView.OnScrollListener() {
                 override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
@@ -108,6 +110,7 @@ class PhotoFragment : Fragment() {
 
     }
 
+    lateinit var job: Job
     fun doSearch(query: String) {
         if (q != query) {
             pageNum = 1
@@ -137,11 +140,12 @@ class PhotoFragment : Fragment() {
                     }
                     val hits = response.body()!!.hits as ArrayList
 //                    Log.e("hits", Gson().fromJson(hits.toString(), Hits::class.java).toString())
-                    GlobalScope.launch(Dispatchers.Main) {
+                    job = GlobalScope.launch(Dispatchers.Main) {
                         if (pageNum == 1)
                             photoAdapter.setHitsList(hits)
                         else
                             photoAdapter.addHitsList(hits)
+                        job.join()
                     }
                 }
             })
