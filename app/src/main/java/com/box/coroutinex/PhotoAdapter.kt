@@ -5,6 +5,9 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.FrameLayout
+import android.widget.ImageView
+import android.widget.LinearLayout
 import androidx.recyclerview.widget.RecyclerView
 import com.box.coroutinex.data.Hits
 import com.bumptech.glide.Glide
@@ -27,7 +30,7 @@ class PhotoAdapter(var list: ArrayList<Hits>) : RecyclerView.Adapter<PhotoAdapte
 
     //
     interface ItemClick {
-        fun itemClickListener(url: String,position: Int)
+        fun itemClickListener(url: String, position: Int)
     }
 
     var itemClick: ItemClick? = null
@@ -45,7 +48,7 @@ class PhotoAdapter(var list: ArrayList<Hits>) : RecyclerView.Adapter<PhotoAdapte
 
 
     private val requestOptions =
-        RequestOptions().diskCacheStrategy(DiskCacheStrategy.AUTOMATIC).override(300,200)
+        RequestOptions().diskCacheStrategy(DiskCacheStrategy.AUTOMATIC).override(300, 200)
             .placeholder(R.drawable.ic_launcher_foreground).fitCenter()
 
     private val requestListener = object : RequestListener<Drawable> {
@@ -69,22 +72,32 @@ class PhotoAdapter(var list: ArrayList<Hits>) : RecyclerView.Adapter<PhotoAdapte
             return false
         }
     }
+
+//        var mwidth = 0
     override fun onBindViewHolder(holder: PhotoAdapter.ViewHolder, position: Int) {
 
+        val width = list[position].webformatWidth.toInt()
+        val height = list[position].webformatHeight.toInt()
         holder.itemView.apply {
+            image_item.apply {
+                layoutParams = image_item.layoutParams
+//                layoutParams.width = ViewGroup.LayoutParams.MATCH_PARENT
+//                mwidth = image_item.width
+                layoutParams.height = height
+                adjustViewBounds = true
+            }
             Glide.with(context).load(list[position].webformatURL)
 //                .apply(requestOptions)
+                .override(Target.SIZE_ORIGINAL,Target.SIZE_ORIGINAL )
                 .placeholder(android.R.color.white)
                 .listener(requestListener)
-                .diskCacheStrategy(DiskCacheStrategy.ALL)
-                .override(list[position].webformatWidth.toInt() / 2,list[position].webformatWidth.toInt())
                 .fitCenter()
-                .dontAnimate()
-                .into(iamge_item)
+                .diskCacheStrategy(DiskCacheStrategy.ALL)
+                .into(image_item)
 
             if (itemClick != null) {
-                iamge_item.setOnClickListener {
-                    itemClick!!.itemClickListener(list[position].largeImageURL!!,position)
+                image_item.setOnClickListener {
+                    itemClick!!.itemClickListener(list[position].largeImageURL!!, position)
                 }
             }
         }

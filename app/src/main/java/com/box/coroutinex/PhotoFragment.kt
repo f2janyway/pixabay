@@ -18,6 +18,7 @@ import com.box.coroutinex.data.Hits
 import com.box.coroutinex.data.Photo
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.fragment_photo.*
+import kotlinx.android.synthetic.main.photo_item.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch

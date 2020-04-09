@@ -1,19 +1,30 @@
 package com.box.coroutinex
 
 import android.app.Activity
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.app.PendingIntent
+import android.content.Context
+import android.content.Intent
 import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.view.inputmethod.InputMethodManager
+import android.widget.RemoteViews
 import androidx.appcompat.app.AppCompatActivity
-import androidx.fragment.app.Fragment
-import androidx.fragment.app.FragmentActivity
-import androidx.viewpager2.adapter.FragmentStateAdapter
+import androidx.core.app.NotificationCompat
+import androidx.core.app.NotificationManagerCompat
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.Observer
 import kotlinx.android.synthetic.main.activity_main.*
-import kotlinx.coroutines.Job
+import kotlinx.coroutines.*
+import java.text.DateFormat
+import java.text.SimpleDateFormat
+import java.util.*
 
 
 class MainActivity : AppCompatActivity() {
@@ -27,11 +38,12 @@ class MainActivity : AppCompatActivity() {
         grantResults: IntArray
     ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        if(grantResults[0] == PackageManager.PERMISSION_GRANTED && requestCode == WRITE_PERMISSION){
-            Log.e("fragments",supportFragmentManager.fragments.toString())
-            (supportFragmentManager.fragments.last() as ScreenSlideScreenFragment ).saveImage()
+        if (grantResults[0] == PackageManager.PERMISSION_GRANTED && requestCode == WRITE_PERMISSION) {
+            Log.e("fragments", supportFragmentManager.fragments.toString())
+            (supportFragmentManager.fragments.last() as ScreenSlideScreenFragment).saveImage()
         }
     }
+
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         super.onCreateOptionsMenu(menu)
         //search_menu.xml 등록
@@ -96,7 +108,118 @@ class MainActivity : AppCompatActivity() {
     override fun onBackPressed() {
         if (pager_container.visibility == View.VISIBLE) {
             pager_container.visibility = View.GONE
-        }else
+        } else
             super.onBackPressed()
+    }
+
+    val time = MutableLiveData<Long>()
+
+    companion object {
+        lateinit var job: Job
+    }
+
+    fun applyNotification() {
+        createNotificationChannel()
+        val notificationManagerCompat =
+            NotificationManagerCompat.from(this)
+        val builder: NotificationCompat.Builder = NotificationCompat.Builder(this, "CHANNEL_ID")
+        builder.apply {
+            setSmallIcon(R.drawable.ic_get_app_white_48dp)
+            setContentTitle("time")
+            setContentText(System.currentTimeMillis().toString())
+            setAutoCancel(true)
+            setDeleteIntent(getDeleteIntent())
+            priority = NotificationCompat.PRIORITY_DEFAULT
+            job = GlobalScope.launch(Dispatchers.Main) {
+                while (true) {
+                    delay(1000)
+                    builder.setContentText(
+                        realTimeToString()
+                    )
+                    Log.e("while",realTimeToString())
+                    notificationManagerCompat.notify(1, builder.build())
+                }
+            }
+            job.start()
+        }
+    }
+
+    fun getDeleteIntent(): PendingIntent {
+        val delIntent = Intent(this, NotificationReceiver::class.java)
+        delIntent.action = "cancel"
+        return PendingIntent.getBroadcast(this, 10, delIntent, PendingIntent.FLAG_CANCEL_CURRENT)
+    }
+
+    fun realTimeToString(): String {
+        return (Calendar.getInstance().time).toString()
+    }
+
+    fun applyCustomNotification() {
+        createNotificationChannel()
+        //notification manager
+        val notificationManagerCompat =
+            NotificationManagerCompat.from(this)
+        //inflating the views (custom_normal.xml and custom_expanded.xml)
+        val remoteCollapsedViews =
+            RemoteViews(packageName, R.layout.custom_normal)
+        val remoteExpandedViews =
+            RemoteViews(packageName, R.layout.custom_expanded)
+
+        //start this(MainActivity) on by Tapping notification
+        val mainIntent = Intent(this, MainActivity::class.java)
+        mainIntent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+        val mainPIntent = PendingIntent.getActivity(
+            this, 0,
+            mainIntent, PendingIntent.FLAG_ONE_SHOT
+        )
+
+        //creating notification
+        val builder: NotificationCompat.Builder = NotificationCompat.Builder(this, "CHANNEL_ID")
+        //icon
+        builder.setSmallIcon(R.drawable.ic_get_app_white_48dp)
+        //set priority
+        builder.priority = NotificationCompat.PRIORITY_DEFAULT
+        //dismiss on tap
+        builder.setAutoCancel(true)
+        //start intent on notification tap (MainActivity)
+        builder.setContentIntent(mainPIntent)
+        //custom style
+        builder.setStyle(NotificationCompat.DecoratedCustomViewStyle())
+        builder.setCustomContentView(remoteCollapsedViews)
+        builder.setCustomBigContentView(remoteExpandedViews)
+        time.value = 1
+        val job = GlobalScope.launch(Dispatchers.Main) {
+            for (i in 0..100) {
+                delay(1000)
+                remoteExpandedViews.setTextViewText(
+                    R.id.custom_expend_text_info,
+                    i.toString()
+                )
+                notificationManagerCompat.notify(1, builder.build())
+            }
+        }
+        job.start()
+
+        remoteExpandedViews.setTextViewText(
+            R.id.custom_expend_text_info,
+            time.value.toString()
+        )
+        //notification manager
+        notificationManagerCompat.notify(1, builder.build())
+    }
+
+    private fun createNotificationChannel() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val name: CharSequence = "My Notification"
+            val description = "My notification description"
+            //importance of your notification
+            val importance = NotificationManager.IMPORTANCE_DEFAULT
+            val notificationChannel =
+                NotificationChannel("CHANNEL_ID", name, importance)
+            notificationChannel.description = description
+            val notificationManager =
+                getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+            notificationManager.createNotificationChannel(notificationChannel)
+        }
     }
 }

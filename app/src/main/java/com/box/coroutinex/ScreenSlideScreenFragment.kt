@@ -1,7 +1,10 @@
 package com.box.coroutinex
 
 import android.Manifest
+import android.app.NotificationChannel
+import android.app.NotificationManager
 import android.content.Context
+import android.content.Context.NOTIFICATION_SERVICE
 import android.content.ContextWrapper
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -10,21 +13,33 @@ import android.drm.DrmStore
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.drawable.BitmapDrawable
+import android.graphics.drawable.Drawable
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.os.Environment
 import android.provider.MediaStore
+import android.provider.Settings
 import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.RemoteViews
 import android.widget.Toast
 import androidx.core.app.ActivityCompat
+import androidx.core.app.NotificationCompat
+import androidx.core.app.NotificationManagerCompat
+import androidx.core.content.ContextCompat.getSystemService
+import androidx.lifecycle.MutableLiveData
 import com.bumptech.glide.Glide
+import com.bumptech.glide.load.DataSource
+import com.bumptech.glide.load.engine.GlideException
+import com.bumptech.glide.request.RequestListener
+import com.bumptech.glide.request.target.Target
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.fragment_screen_slide_screen.*
+import kotlinx.android.synthetic.main.fragment_screen_slide_screen.view.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
@@ -71,7 +86,31 @@ class ScreenSlideScreenFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        view.photoView_progress.visibility = View.VISIBLE
+
         Glide.with(activity!!).load(url)
+            .listener(object  : RequestListener<Drawable>{
+                override fun onLoadFailed(
+                    e: GlideException?,
+                    model: Any?,
+                    target: Target<Drawable>?,
+                    isFirstResource: Boolean
+                ): Boolean {
+                    return false
+                }
+
+                override fun onResourceReady(
+                    resource: Drawable?,
+                    model: Any?,
+                    target: Target<Drawable>?,
+                    dataSource: DataSource?,
+                    isFirstResource: Boolean
+                ): Boolean {
+                    view.photoView_progress.visibility = View.GONE
+                    return false
+                }
+
+            })
             .into(photoView)
 
     }
@@ -97,12 +136,17 @@ class ScreenSlideScreenFragment : Fragment() {
                 }
             }
             share_button.setOnClickListener {
-                shareBitmap()
+                if (photoView.drawable != null) {
+                    (activity as MainActivity).applyNotification()
+                    shareBitmap()
+                }
             }
         }
 
     }
-    private fun shareBitmap(){
+
+
+    private fun shareBitmap() {
         val mBitmap = (photoView.drawable as BitmapDrawable).bitmap
 
         val stream = ByteArrayOutputStream()
@@ -117,7 +161,7 @@ class ScreenSlideScreenFragment : Fragment() {
             action = Intent.ACTION_SEND
             putExtra(
                 Intent.EXTRA_STREAM,
-                getImageUriFromBitmap(activity!!,mBitmap)
+                getImageUriFromBitmap(activity!!, mBitmap)
                 /*Bitmap.createScaledBitmap(compressedBitmap, compressedBitmap.width /6, compressedBitmap.height/6, false) 쓸데 없구만 uri 로 보내야지*/
             )
             type = "image/*"
