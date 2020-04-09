@@ -19,11 +19,8 @@ import com.box.coroutinex.data.Photo
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.fragment_photo.*
 import kotlinx.android.synthetic.main.photo_item.*
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.Job
+import kotlinx.coroutines.*
 import kotlinx.coroutines.internal.synchronized
-import kotlinx.coroutines.launch
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -116,40 +113,37 @@ class PhotoFragment : Fragment() {
             pageNum = 1
             q = query
         }
-        GlobalScope.launch(Dispatchers.IO) {
-            val service = APIService.pixabayRetrofit.create(APIService::class.java)
-            //param1  : key ,, param2 : query
-            val photoResult: Call<Photo> = service.searchImages(param1!!, q!!, pageNum, true)
-            photoResult.enqueue(object : Callback<Photo> {
-                override fun onFailure(call: Call<Photo>, t: Throwable) {
-                    Toast.makeText(activity, getString(R.string.no_wifi), Toast.LENGTH_SHORT).show()
-                    Log.e("fair", "fail network")
+        val service = APIService.pixabayRetrofit.create(APIService::class.java)
+        //param1  : key ,, param2 : query
+        val photoResult: Call<Photo> = service.searchImages(param1!!, q!!, pageNum, true)
+        photoResult.enqueue(object : Callback<Photo> {
+            override fun onFailure(call: Call<Photo>, t: Throwable) {
+                Toast.makeText(activity, getString(R.string.no_wifi), Toast.LENGTH_SHORT).show()
+                Log.e("fair", "fail network")
+            }
+
+            override fun onResponse(call: Call<Photo>, response: Response<Photo>) {
+                Log.e("url", response.toString())
+
+                if (response.body() == null || response.body()!!.hits.isEmpty()) {
+                    Toast.makeText(
+                        activity,
+                        getString(R.string.no_search_info),
+                        Toast.LENGTH_SHORT
+                    ).show()
+                    activity!!.progressBar.visibility = View.GONE
+                    return
                 }
-
-                override fun onResponse(call: Call<Photo>, response: Response<Photo>) {
-                    Log.e("url", response.toString())
-
-                    if (response.body() == null || response.body()!!.hits.isEmpty()) {
-                        Toast.makeText(
-                            activity,
-                            getString(R.string.no_search_info),
-                            Toast.LENGTH_SHORT
-                        ).show()
-                        activity!!.progressBar.visibility = View.GONE
-                        return
-                    }
-                    val hits = response.body()!!.hits as ArrayList
+                val hits = response.body()!!.hits as ArrayList
 //                    Log.e("hits", Gson().fromJson(hits.toString(), Hits::class.java).toString())
-                    job = GlobalScope.launch(Dispatchers.Main) {
-                        if (pageNum == 1)
-                            photoAdapter.setHitsList(hits)
-                        else
-                            photoAdapter.addHitsList(hits)
-                        job.join()
-                    }
+                job = GlobalScope.launch(Dispatchers.Main) {
+                    if (pageNum == 1)
+                        photoAdapter.setHitsList(hits)
+                    else
+                        photoAdapter.addHitsList(hits)
                 }
-            })
-        }
+            }
+        })
     }
 
     inner class ScreenSlidePagerAdapter(fa: FragmentActivity) : FragmentStateAdapter(fa) {
