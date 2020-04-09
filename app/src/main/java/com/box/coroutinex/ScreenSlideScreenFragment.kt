@@ -137,7 +137,7 @@ class ScreenSlideScreenFragment : Fragment() {
             }
             share_button.setOnClickListener {
                 if (photoView.drawable != null) {
-                    (activity as MainActivity).applyNotification()
+//                    (activity as MainActivity).applyNotification()
                     shareBitmap()
                 }
             }
