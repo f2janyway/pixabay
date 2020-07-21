@@ -1,15 +1,10 @@
-package com.box.coroutinex
+package com.box.pixabay
 
 import android.Manifest
-import android.app.NotificationChannel
-import android.app.NotificationManager
 import android.content.Context
-import android.content.Context.NOTIFICATION_SERVICE
-import android.content.ContextWrapper
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.database.Cursor
-import android.drm.DrmStore
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.drawable.BitmapDrawable
@@ -17,22 +12,15 @@ import android.graphics.drawable.Drawable
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
-import android.os.Environment
 import android.provider.MediaStore
-import android.provider.Settings
 import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.RemoteViews
 import android.widget.Toast
 import androidx.core.app.ActivityCompat
-import androidx.core.app.NotificationCompat
-import androidx.core.app.NotificationManagerCompat
-import androidx.core.content.ContextCompat.getSystemService
-import androidx.lifecycle.MutableLiveData
-import com.box.coroutinex.MainActivity.Companion.job
+import com.box.pixabay.MainActivity.Companion.job
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.DataSource
 import com.bumptech.glide.load.engine.GlideException
@@ -49,13 +37,13 @@ import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
 import java.lang.Exception
-import java.util.*
 
 /**
  * A simple [Fragment] subclass.
  */
 class ScreenSlideScreenFragment : Fragment() {
     val WRITE_PERMISSION = 100
+
 
     companion object {
         @JvmStatic
@@ -88,23 +76,23 @@ class ScreenSlideScreenFragment : Fragment() {
         view.photoView_progress.visibility = View.VISIBLE
 
         Glide.with(activity!!).load(url).listener(object : RequestListener<Drawable> {
-                    override fun onLoadFailed(e: GlideException?,
-                            model: Any?,
-                            target: Target<Drawable>?,
-                            isFirstResource: Boolean): Boolean {
-                        return false
-                    }
+            override fun onLoadFailed(e: GlideException?,
+                    model: Any?,
+                    target: Target<Drawable>?,
+                    isFirstResource: Boolean): Boolean {
+                return false
+            }
 
-                    override fun onResourceReady(resource: Drawable?,
-                            model: Any?,
-                            target: Target<Drawable>?,
-                            dataSource: DataSource?,
-                            isFirstResource: Boolean): Boolean {
-                        view.photoView_progress.visibility = View.GONE
-                        return false
-                    }
+            override fun onResourceReady(resource: Drawable?,
+                    model: Any?,
+                    target: Target<Drawable>?,
+                    dataSource: DataSource?,
+                    isFirstResource: Boolean): Boolean {
+                view.photoView_progress.visibility = View.GONE
+                return false
+            }
 
-                }).into(photoView)
+        }).into(photoView)
 
     }
 

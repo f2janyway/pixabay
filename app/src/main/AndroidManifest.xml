@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.box.coroutinex">
+    package="com.box.pixabay">
 
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
@@ -13,10 +13,14 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <receiver android:name=".NotificationReceiver"
+        <activity android:name="com.box.pixabay.test.MultiThreadActivity"></activity>
+
+        <receiver
+            android:name="com.box.pixabay.NotificationReceiver"
             android:enabled="true"
-            android:exported="true"/>
-        <activity android:name=".MainActivity">
+            android:exported="true" />
+
+        <activity android:name="com.box.pixabay.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

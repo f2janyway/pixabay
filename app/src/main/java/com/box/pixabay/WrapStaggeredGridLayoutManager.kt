@@ -1,4 +1,4 @@
-package com.box.coroutinex
+package com.box.pixabay
 
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.StaggeredGridLayoutManager

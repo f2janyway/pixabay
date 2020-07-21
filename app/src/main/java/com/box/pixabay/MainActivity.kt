@@ -1,4 +1,4 @@
-package com.box.coroutinex
+package com.box.pixabay
 
 import android.app.Activity
 import android.app.NotificationChannel
@@ -19,10 +19,8 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.Observer
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.coroutines.*
-import java.text.DateFormat
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -93,6 +91,7 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
+//        startActivity(Intent(this,MultiThreadActivity::class.java))
         setSupportActionBar(toolbar)
         val ab = supportActionBar
         ab?.apply {
@@ -153,10 +152,7 @@ class MainActivity : AppCompatActivity() {
 
     fun realTimeToString(): String {
         val time = System.currentTimeMillis();
-
 		val dayTime =  SimpleDateFormat("hh:mm:ss",Locale.KOREA)
-
-
         return dayTime.format(Date(time))
     }
 

@@ -1,4 +1,4 @@
-package com.box.coroutinex.data
+package com.box.pixabay.data
 
 data class Hits (
     var id: Float = 0f,

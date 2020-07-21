@@ -1,15 +1,13 @@
-package com.box.coroutinex
+package com.box.pixabay
 
 import android.graphics.drawable.Drawable
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.FrameLayout
 import android.widget.ImageView
-import android.widget.LinearLayout
 import androidx.recyclerview.widget.RecyclerView
-import com.box.coroutinex.data.Hits
+import com.box.pixabay.data.Hits
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.DataSource
 import com.bumptech.glide.load.engine.DiskCacheStrategy
@@ -78,7 +76,7 @@ class PhotoAdapter(var list: ArrayList<Hits>) : RecyclerView.Adapter<PhotoAdapte
                 layoutParams = image_item.layoutParams
                 layoutParams.width = ViewGroup.LayoutParams.MATCH_PARENT
                 //                mwidth = image_item.width
-                layoutParams.height = height
+                layoutParams.height = ViewGroup.LayoutParams.WRAP_CONTENT
                 adjustViewBounds = true
 
                 //이미지 뷰에 글리아드 맞춤

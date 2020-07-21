@@ -8,4 +8,5 @@
     <string name="permission">권한 설정 안되어 있습니다.</string>
     <string name="no_wifi">인터넷 연결을 해주세요.</string>
     <string name="no_search_info">검색자료가 없습니다.</string>
+    <string name="main_query">nature</string>
 </resources>

@@ -1,6 +1,5 @@
-package com.box.coroutinex
+package com.box.pixabay
 
-import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import androidx.fragment.app.Fragment
@@ -8,19 +7,15 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
-import androidx.annotation.RequiresApi
 import androidx.fragment.app.FragmentActivity
 import androidx.recyclerview.widget.RecyclerView
-import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import androidx.viewpager2.adapter.FragmentStateAdapter
-import com.box.coroutinex.data.APIService
-import com.box.coroutinex.data.Hits
-import com.box.coroutinex.data.Photo
+import com.box.pixabay.data.APIService
+import com.box.pixabay.data.Hits
+import com.box.pixabay.data.Photo
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.fragment_photo.*
-import kotlinx.android.synthetic.main.photo_item.*
 import kotlinx.coroutines.*
-import kotlinx.coroutines.internal.synchronized
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -87,6 +82,7 @@ class PhotoFragment : Fragment() {
         photo_recycler.apply {
             adapter = photoAdapter
             layoutManager = WrapStaggeredGridLayoutManager(2, RecyclerView.VERTICAL)
+//            layoutManager = LinearLayoutManager(context)
             setHasFixedSize(true)
             addOnScrollListener(object : RecyclerView.OnScrollListener() {
                 override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
@@ -102,8 +98,7 @@ class PhotoFragment : Fragment() {
                 }
             })
         }
-        doSearch("car")
-
+        doSearch(getString(R.string.main_query))
     }
 
     lateinit var job: Job
@@ -120,7 +115,6 @@ class PhotoFragment : Fragment() {
                 Toast.makeText(activity, getString(R.string.no_wifi), Toast.LENGTH_SHORT).show()
                 Log.e("fair", "fail network")
             }
-
             override fun onResponse(call: Call<Photo>, response: Response<Photo>) {
                 Log.e("url", response.toString())
 
@@ -132,10 +126,18 @@ class PhotoFragment : Fragment() {
                 }
                 val hits = response.body()!!.hits as ArrayList
                 //                    Log.e("hits", Gson().fromJson(hits.toString(), Hits::class.java).toString())
-                job = GlobalScope.launch(Dispatchers.Main) {
-                    if (pageNum == 1) photoAdapter.setHitsList(hits)
-                    else photoAdapter.addHitsList(hits)
+                val frontHits = hits.subList(0,hits.size/2).toList() as ArrayList
+
+                val endHits  = hits.subList(hits.size/2,hits.size).toList() as ArrayList
+                GlobalScope.launch(Dispatchers.Main) {
+                    if (pageNum == 1) photoAdapter.setHitsList(frontHits)
+                    else photoAdapter.addHitsList(frontHits)
                 }
+                GlobalScope.launch(Dispatchers.Main) {
+                    if (pageNum == 1) photoAdapter.setHitsList(endHits)
+                    else photoAdapter.addHitsList(endHits)
+                }
+
             }
         })
     }
