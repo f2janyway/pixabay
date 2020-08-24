@@ -100,16 +100,16 @@ class PhotoAdapter(var list: ArrayList<Hits>) : RecyclerView.Adapter<PhotoAdapte
 
 
     fun setHitsList(hitsList: ArrayList<Hits>) {
+//        list.clear()
+        list .addAll(hitsList)
+        notifyDataSetChanged()
+    }
+    fun addHitsList(hitsList: ArrayList<Hits>){
         list.clear()
-        list = hitsList
+        list.addAll(hitsList)
         notifyDataSetChanged()
     }
 
-    fun addHitsList(hits: ArrayList<Hits>) {
-        list.addAll(hits)
-        Log.e("list size", list.size.toString())
-        notifyDataSetChanged()
-    }
 
     override fun getItemId(position: Int): Long {
         return list[position].id.toLong()

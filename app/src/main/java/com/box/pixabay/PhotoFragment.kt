@@ -124,17 +124,17 @@ class PhotoFragment : Fragment() {
                 }
                 val hits = response.body()!!.hits as ArrayList
                 //                    Log.e("hits", Gson().fromJson(hits.toString(), Hits::class.java).toString())
-                val frontHits = hits.subList(0,hits.size/2).toList() as ArrayList
-
-                val endHits  = hits.subList(hits.size/2,hits.size).toList() as ArrayList
+//                val frontHits = hits.subList(0,hits.size/2).toList() as ArrayList
+//
+//                val endHits  = hits.subList(hits.size/2,hits.size).toList() as ArrayList
                 GlobalScope.launch(Dispatchers.Main) {
-                    if (pageNum == 1) photoAdapter.setHitsList(frontHits)
-                    else photoAdapter.addHitsList(frontHits)
+                    if (pageNum == 1) photoAdapter.addHitsList(hits)
+                    else photoAdapter.setHitsList(hits)
                 }
-                GlobalScope.launch(Dispatchers.Main) {
-                    if (pageNum == 1) photoAdapter.setHitsList(endHits)
-                    else photoAdapter.addHitsList(endHits)
-                }
+//                GlobalScope.launch(Dispatchers.Main) {
+//                    if (pageNum == 1)photoAdapter.addHitsList(endHits)
+//                    else photoAdapter.setHitsList(endHits)
+//                }
 
             }
         })
