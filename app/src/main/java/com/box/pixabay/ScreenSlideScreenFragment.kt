@@ -20,7 +20,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.core.app.ActivityCompat
-import com.box.pixabay.MainActivity.Companion.job
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.DataSource
 import com.bumptech.glide.load.engine.GlideException
@@ -116,8 +115,6 @@ class ScreenSlideScreenFragment : Fragment() {
             }
             share_button.setOnClickListener {
                 if (photoView.drawable != null) {
-                    if (job != null) job!!.cancel(null)
-                    (activity as MainActivity).applyNotification()
                     shareBitmap()
                 }
             }

@@ -8,10 +8,12 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import androidx.recyclerview.widget.RecyclerView
 import com.box.pixabay.data.Hits
+import com.box.pixabay.databinding.PhotoItemBinding
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.DataSource
 import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.bumptech.glide.load.engine.GlideException
+import com.bumptech.glide.load.resource.bitmap.RoundedCorners
 import com.bumptech.glide.request.RequestListener
 import com.bumptech.glide.request.RequestOptions
 import com.bumptech.glide.request.target.Target
@@ -33,66 +35,69 @@ class PhotoAdapter(var list: ArrayList<Hits>) : RecyclerView.Adapter<PhotoAdapte
 
     var itemClick: ItemClick? = null
 
-    class ViewHolder(view: View) : RecyclerView.ViewHolder(view)
+    inner class ViewHolder(val binding: PhotoItemBinding) : RecyclerView.ViewHolder(binding.root) {
+        fun bind(holder: ViewHolder, position: Int) {
+            binding.imageItem.apply {
+//                this.layoutParams = ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,ViewGroup.LayoutParams.WRAP_CONTENT)
+                //이미지 뷰에 글리아드 맞춤
+                Glide.with(context).load(list[position].webformatURL)
+                    .apply(requestOptions)
+                    .listener(requestListener).into(this)
+
+                if (itemClick != null) {
+                    image_item.setOnClickListener {
+                        itemClick!!.itemClickListener(list[position].largeImageURL!!, position)
+                    }
+                }
+            }
+        }
+    }
+
+    override fun onBindViewHolder(holder: PhotoAdapter.ViewHolder, position: Int) {
+
+        holder.bind(holder, position)
+        holder.itemView.apply {
+
+        }
+    }
 
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PhotoAdapter.ViewHolder {
-        return ViewHolder(LayoutInflater.from(parent.context)
-                                  .inflate(R.layout.photo_item, parent, false))
+        val binding = PhotoItemBinding.bind(
+            LayoutInflater.from(parent.context).inflate(R.layout.photo_item, parent, false)
+        )
+        return ViewHolder(binding)
     }
 
     override fun getItemCount(): Int = list.size
 
 
-    private val requestOptions = RequestOptions().diskCacheStrategy(DiskCacheStrategy.ALL)
-            .placeholder(android.R.color.white)
+    private val requestOptions = RequestOptions().diskCacheStrategy(DiskCacheStrategy.ALL).transform(RoundedCorners(25))
+        .placeholder(android.R.color.white).override(400,400)
 
 
     private val requestListener = object : RequestListener<Drawable> {
-        override fun onLoadFailed(e: GlideException?,
-                model: Any?,
-                target: Target<Drawable>?,
-                isFirstResource: Boolean): Boolean {
+        override fun onLoadFailed(
+            e: GlideException?,
+            model: Any?,
+            target: Target<Drawable>?,
+            isFirstResource: Boolean
+        ): Boolean {
             return false
         }
 
-        override fun onResourceReady(resource: Drawable?,
-                model: Any?,
-                target: Target<Drawable>?,
-                dataSource: DataSource?,
-                isFirstResource: Boolean): Boolean {
+        override fun onResourceReady(
+            resource: Drawable?,
+            model: Any?,
+            target: Target<Drawable>?,
+            dataSource: DataSource?,
+            isFirstResource: Boolean
+        ): Boolean {
             loadingCheck?.isLoadingEnd(true)
             return false
         }
     }
 
-    //        var mwidth = 0
-    override fun onBindViewHolder(holder: PhotoAdapter.ViewHolder, position: Int) {
-
-        val width = list[position].webformatWidth.toInt()
-        val height = list[position].webformatHeight.toInt()
-        holder.itemView.apply {
-            image_item.apply {
-                layoutParams = image_item.layoutParams
-                layoutParams.width = ViewGroup.LayoutParams.MATCH_PARENT
-                //                mwidth = image_item.width
-                layoutParams.height = ViewGroup.LayoutParams.WRAP_CONTENT
-                adjustViewBounds = true
-
-                //이미지 뷰에 글리아드 맞춤
-                scaleType = ImageView.ScaleType.CENTER_CROP
-
-            }
-            Glide.with(context).load(list[position].webformatURL).apply(requestOptions)
-                    .listener(requestListener).into(image_item)
-
-            if (itemClick != null) {
-                image_item.setOnClickListener {
-                    itemClick!!.itemClickListener(list[position].largeImageURL!!, position)
-                }
-            }
-        }
-    }
 
     fun setHitsList(hitsList: ArrayList<Hits>) {
         list.clear()

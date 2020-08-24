@@ -8,6 +8,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.FragmentActivity
+import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import com.box.pixabay.data.APIService
@@ -27,8 +28,6 @@ private const val ARG_PARAM2 = "param2"
 class PhotoFragment : Fragment() {
     private var param1: String? = null
 
-    //    private var param2: String? = null
-    @Volatile
     lateinit var photoAdapter: PhotoAdapter
 
     var q: String? = null
@@ -81,7 +80,7 @@ class PhotoFragment : Fragment() {
         }
         photo_recycler.apply {
             adapter = photoAdapter
-            layoutManager = WrapStaggeredGridLayoutManager(2, RecyclerView.VERTICAL)
+            layoutManager = LinearLayoutManager(requireContext())
 //            layoutManager = LinearLayoutManager(context)
             setHasFixedSize(true)
             addOnScrollListener(object : RecyclerView.OnScrollListener() {
@@ -101,7 +100,6 @@ class PhotoFragment : Fragment() {
         doSearch(getString(R.string.main_query))
     }
 
-    lateinit var job: Job
     fun doSearch(query: String) {
         if (q != query) {
             pageNum = 1
@@ -112,16 +110,16 @@ class PhotoFragment : Fragment() {
         val photoResult: Call<Photo> = service.searchImages(param1!!, q!!, pageNum, true)
         photoResult.enqueue(object : Callback<Photo> {
             override fun onFailure(call: Call<Photo>, t: Throwable) {
-                Toast.makeText(activity, getString(R.string.no_wifi), Toast.LENGTH_SHORT).show()
+                Toast.makeText(requireContext(), getString(R.string.no_wifi), Toast.LENGTH_SHORT).show()
                 Log.e("fair", "fail network")
             }
             override fun onResponse(call: Call<Photo>, response: Response<Photo>) {
                 Log.e("url", response.toString())
 
                 if (response.body() == null || response.body()!!.hits.isEmpty()) {
-                    Toast.makeText(activity, getString(R.string.no_search_info), Toast.LENGTH_SHORT)
+                    Toast.makeText(requireContext(), getString(R.string.no_search_info), Toast.LENGTH_SHORT)
                             .show()
-                    activity!!.progressBar.visibility = View.GONE
+                    requireActivity().progressBar.visibility = View.GONE
                     return
                 }
                 val hits = response.body()!!.hits as ArrayList
@@ -150,14 +148,6 @@ class PhotoFragment : Fragment() {
     }
 
     companion object {
-        /**
-         * Use this factory method to create a new instance of
-         * this fragment using the provided parameters.
-         *
-         * @param param1 Parameter 1.
-         * @param param2 Parameter 2.
-         * @return A new instance of fragment PhotoFragment.
-         */
         @JvmStatic
         fun newInstance(param1: String, param2: String) = PhotoFragment().apply {
             arguments = Bundle().apply {
